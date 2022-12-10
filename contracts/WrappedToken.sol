@@ -33,7 +33,7 @@ contract Wrapped_Token is ERC721 {
     constructor() ERC721("WRAPPED_TOKEN", "WRPT"){}
     
     //this functiOn collateralized the NFT 
-    function wrapp(address _ledger, uint256 _amount) public {
+    function wrapp(address _ledger, uint256 _amount) public virtual {
         ierc20 = IERC20(_ledger);
         require(ierc20.balanceOf(msg.sender) <= _amount, "WRPT: You do not have funds enough.");
         ierc20.transferFrom(msg.sender, address(this), _amount);
@@ -48,7 +48,7 @@ contract Wrapped_Token is ERC721 {
         emit Wrapped(address(0), _ledger, tokenId.current(), _amount);
     }
 
-    function unwrapp(uint256 id) public {
+    function unwrapp(uint256 id) public virtual {
         Order memory order;
         order = _orders[id];
         ierc20 = IERC20(order.ledger);

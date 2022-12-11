@@ -12,8 +12,8 @@ interface IWRPT {
     event Wrapped(address indexed from, address indexed token, uint256 id, uint256 amount);
     event Unwrapped(address indexed from, address indexed token, uint256 id);
 
-    function wrapp(address _ledger, uint256 _amount) external;
-    function unwrapp(uint256 id) external; 
+    function wrap(address _ledger, uint256 _amount) external;
+    function unwrap(uint256 id) external; 
 
     function getOrderInfo(uint256 id) external view returns(Order memory);
     function totalOrderBy(address user) external view returns (uint256);

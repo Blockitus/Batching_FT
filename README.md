@@ -9,6 +9,7 @@ Enviroment:
 1-Run task deployMock
 2-Run task createToken 
 3-Run task deployWRPT
+3.1- Run task approve
 4-Run task wrap
 5-Run task totalOrders
 6-Run task getOrderInfo

@@ -1,6 +1,5 @@
 //The address eneed to be changed
-const addressFactoryAlchemy = "0xbB5d4Ae5a22DCef8C1075E99FB98A9325A87D208";
-const addressFactory = "0xe887Cc58f7ac048736190Dda840D3A446f3b90f7";
+const addressFactory = "0x57C2F563e52949D45e0F984E74643b6bA5132D60";
 
 task("createToken", "create a new token to test")
     .addParam("name", "token's name.")
@@ -11,6 +10,5 @@ task("createToken", "create a new token to test")
         let tx = await erc20Factory.connect(signers[0]).createToken(taskArgs.name, taskArgs.symbol);
         //let token_address = await erc20Factory.decodeFunctionResult("createToken", tx.data);
         
-        let receipt = await tx.wait();
-        console.log("Token's address is " + receipt.to);
+        console.log("Token's address is " + tx);
 })

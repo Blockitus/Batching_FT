@@ -1,6 +1,6 @@
 /** @type import('hardhat/config').HardhatUserConfig */
 
-//require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-toolbox");
 require("./tasks/approve");
 require("./tasks/createToken");
 require("./tasks/deployMock");

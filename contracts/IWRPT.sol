@@ -15,8 +15,11 @@ interface IWRPT {
     function wrapp(address _ledger, uint256 _amount) external;
     function unwrapp(uint256 id) external; 
 
-    function ordersOf(address user) external view returns(uint256[] memory);
-    function getIndex(uint256 id) external view  returns (uint256);
-    function getOrder(uint256 id) external view returns ( Order memory);
+    function getOrderInfo(uint256 id) external view returns(Order memory);
+    function totalOrderBy(address user) external view returns (uint256);
+    function getOrderIndex(address user, uint256 id) external view  returns (uint256);
+    function getOrderIdByIndex(uint256 index) external view returns (uint256);
+    function totalOrders() external view returns(uint256);
+
 
 }

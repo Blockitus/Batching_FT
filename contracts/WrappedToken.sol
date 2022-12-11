@@ -18,14 +18,14 @@ contract Wrapped_Token is ERC721 {
         uint256 amount;
     }
 
-    //all orders list of 
+    //all orders list 
+    uint256[] private _orders;
 
-
-    mapping (uint256 => Order) private _orders;
+    mapping (uint256 => Order) private _idLinkedToOrder;
     
-    mapping (address => uint256[]) private _ids;
+    mapping (address => uint256) private _quantity;
 
-    mapping (uint256 => uint256) private _index;
+    mapping (address => mapping (uint256 => uint256)) private _myOrders;
 
     event Wrapped(address indexed from, address indexed token, uint256 id, uint256 amount);
     event Unwrapped(address indexed from, address indexed token, uint256 id);
@@ -33,41 +33,64 @@ contract Wrapped_Token is ERC721 {
     constructor() ERC721("WRAPPED_TOKEN", "WRPT"){}
     
     //this functiOn collateralized the NFT 
-    function wrapp(address _ledger, uint256 _amount) public virtual {
+    function wrap(address _ledger, uint256 _amount) public virtual {
         ierc20 = IERC20(_ledger);
-        require(ierc20.balanceOf(msg.sender) <= _amount, "WRPT: You do not have funds enough.");
-        ierc20.transferFrom(msg.sender, address(this), _amount);
+        require(ierc20.balanceOf(msg.sender) >= _amount, "WRPT: You do not have funds enough.");
+        assert(ierc20.transferFrom(msg.sender, address(this), _amount));
+        
         Order memory order = Order(_ledger, _amount);
         tokenId.increment();
+        uint256 id = tokenId.current();
         
-        _orders[tokenId.current()] = order;
-        _ids[msg.sender].push(tokenId.current());
-        _index[tokenId.current()] = _ids[msg.sender].length - 1;
+        _orders.push(id);
+        _idLinkedToOrder[id] = order;
+        _quantity[msg.sender] += 1;
+        _myOrders[msg.sender][id] = _orders.length - 1;
 
         _mint(msg.sender, tokenId.current());
-        emit Wrapped(address(0), _ledger, tokenId.current(), _amount);
+        emit Wrapped(msg.sender, _ledger, tokenId.current(), _amount);
     }
 
-    function unwrapp(uint256 id) public virtual {
-        Order memory order;
-        order = _orders[id];
-        ierc20 = IERC20(order.ledger);
+    function unwrap(uint256 id) public virtual {
         require(msg.sender == ownerOf(id), "WRPT: You are not the owner of NFT");
-        ierc20.transfer(msg.sender, order.amount);
+        Order memory order = _idLinkedToOrder[id];
+        ierc20 = IERC20(order.ledger);
+        
+        uint256 index = _myOrders[msg.sender][id];
+        _popIndexTarget(index, _orders);
+        _quantity[msg.sender] -= 1;
+        delete _idLinkedToOrder[id];
+        delete _myOrders[msg.sender][id];
         _burn(id);
+        
+        assert(ierc20.transfer(msg.sender, order.amount));
         emit Unwrapped(msg.sender, order.ledger, id);
     }
 
-    function ordersOf(address user) external view returns(uint256[] memory) {
-        return _ids[user];
+    function getOrderInfo(uint256 id) external view returns(Order memory) {
+        return _idLinkedToOrder[id];
     }
 
-    function getIndex(uint256 id) external view  returns (uint256) {
-        return _index[id];
+    function  totalOrderBy(address user) external view returns (uint256) {
+        return _quantity[user];
     }
 
-    function getOrder(uint256 id) external view returns ( Order memory) {
-        return _orders[id];
+    function getOrderIndex(address user, uint256 id) external view  returns (uint256) {
+        return _myOrders[user][id];
+    }
+
+    function getOrderIdByIndex(uint256 index) external view returns (uint256) {
+        return _orders[index];
+    }
+
+    function totalOrders() external view returns(uint256) {
+        return _orders.length;
+    }
+
+    function _popIndexTarget(uint256 indexTarget, uint256[] storage _list) internal {
+        uint256 lastIndex = _list.length - 1;
+        _list[indexTarget] = _list[lastIndex];
+        _list.pop();
     }
 
 }
